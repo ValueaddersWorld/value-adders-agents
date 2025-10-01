@@ -1,0 +1,29 @@
+name: Build documentation PDFs
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - README.md
+      - docs/automation_playbook.md
+      - Makefile
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install pandoc
+        run: sudo apt-get update && sudo apt-get install -y pandoc
+      - name: Build PDF
+        run: make pdf
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: value-adders-automation-manual
+          path: docs/value-adders-automation-manual.pdf

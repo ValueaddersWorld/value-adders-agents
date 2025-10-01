@@ -18,6 +18,14 @@ This logs tasks to Notion, writes Markdown deliverables under `outputs/`, and ge
 
 ## Automation
 
+To build the PDF manual locally:
+```bash
+make pdf
+```
+The generated file will be in `docs/value-adders-automation-manual.pdf` and is also produced automatically by GitHub Actions when relevant files change.
+
+## Automation
+
 To run daily, use the provided PowerShell helper:
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File automation\run_sprint.ps1
