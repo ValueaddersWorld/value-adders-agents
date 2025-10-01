@@ -12,21 +12,32 @@ Responsibilities include:
  - Collaborating with developers, product managers and other agents to align designs with the MTP and ethical AI principles.
 """
 
-from autogen import AssistantAgent
+from autogen_agentchat.agents import AssistantAgent
 
 class TechnicalArchitectAgent(AssistantAgent):
     """Technical Architect agent designs compute infrastructure and backend architecture."""
 
-    def __init__(self, **kwargs):
+    def __init__(
+        self,
+        name: str = "technical_architect_agent",
+        model_client=None,
+        system_message: str = None,
+        **kwargs,
+    ):
         default_system_message = (
             "You are TechnicalArchitectAgent, responsible for designing the compute infrastructure and software architecture "
             "for the Value Adders World. Evaluate hardware and renewable energy options, design scalable and secure architectures "
             "for our applications and services, ensure performance, reliability, and data sovereignty, and provide technical guidance "
             "to developers and product teams. Align all designs with ethical AI principles and our Massive Transformative Purpose."
         )
-        system_message = kwargs.pop("system_message", default_system_message)
-        super().__init__(system_message=system_message, **kwargs)
-        self.name = "TechnicalArchitect"
+        if system_message is None:
+            system_message = default_system_message
+        super().__init__(
+            name=name,
+            system_message=system_message,
+            model_client=model_client,
+            **kwargs,
+        )
 
 if __name__ == "__main__":
     agent = TechnicalArchitectAgent()

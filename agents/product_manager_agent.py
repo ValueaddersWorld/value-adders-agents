@@ -12,12 +12,18 @@ Responsibilities include:
  - Ensuring the AddValue app and related products meet user needs and deliver on the MTP.
 """
 
-from autogen import AssistantAgent
+from autogen_agentchat.agents import AssistantAgent
 
 class ProductManagerAgent(AssistantAgent):
     """Product Manager agent orchestrates product development and ensures user-centric design."""
 
-    def __init__(self, **kwargs):
+    def __init__(
+        self,
+        name: str = "product_manager_agent",
+        model_client=None,
+        system_message: str = None,
+        **kwargs,
+    ):
         default_system_message = (
             "You are ProductManagerAgent, the voice of the user and guardian of product quality. "
             "You translate the General's vision and strategy into actionable user stories and acceptance criteria, "
@@ -25,9 +31,14 @@ class ProductManagerAgent(AssistantAgent):
             "and coordinate with Developer, Data, Design and other agents to deliver features on schedule. "
             "Ensure our products meet user needs, align with spiritual-tech values and deliver on the Massive Transformative Purpose."
         )
-        system_message = kwargs.pop("system_message", default_system_message)
-        super().__init__(system_message=system_message, **kwargs)
-        self.name = "ProductManager"
+        if system_message is None:
+            system_message = default_system_message
+        super().__init__(
+            name=name,
+            system_message=system_message,
+            model_client=model_client,
+            **kwargs,
+        )
 
 if __name__ == "__main__":
     agent = ProductManagerAgent()

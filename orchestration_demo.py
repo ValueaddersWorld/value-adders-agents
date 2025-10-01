@@ -1,12 +1,23 @@
 """
 Orchestration script for the Value Adders multi-agent system.
 
-This script demonstrates how to instantiate the various specialized agents defined in the
-agents package and coordinate their work using the OrchestratorAgent. The orchestrator
-assigns tasks, monitors progress and ensures alignment with the Living Constitution and
-ethical guidelines.
+Instantiates the CEO alongside all specialist agents and registers them with the
+OrchestratorAgent so the organisation can coordinate work across teams.
 """
 
+from __future__ import annotations
+
+import os
+
+from dotenv import load_dotenv
+from autogen_ext.models.openai import OpenAIChatCompletionClient
+
+from automation.playbook import get_tasks_for_today
+from integrations.slack_notifier import SlackNotifier
+from outputs.deliverable_writer import DeliverableWriter
+from tools.web_fetch import web_fetch
+
+from agents.ceo_agent import CEOAgent
 from agents.scrum_master_agent import ScrumMasterAgent
 from agents.vision_strategy_agent import VisionStrategyAgent
 from agents.product_manager_agent import ProductManagerAgent
@@ -21,46 +32,58 @@ from agents.spiritual_alignment_agent import SpiritualAlignmentAgent
 from agents.research_innovation_agent import ResearchInnovationAgent
 from agents.orchestrator_agent import OrchestratorAgent
 
+
+def _parse_aliases(raw: str | None) -> list[str]:
+    if not raw:
+        return []
+    return [alias.strip() for alias in raw.split(",") if alias.strip()]
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() not in {"false", "0", "no"}
+
+
 def run_demo() -> None:
     """Run a demonstration of the Value Adders multi-agent system."""
-    # choose the language model to use with AutoGen
-    model = "gpt-5"
+    load_dotenv()
+    model = os.getenv("OPENAI_MODEL", "gpt-4o")
+    model_client = OpenAIChatCompletionClient(model=model, parallel_tool_calls=False)
 
-    # instantiate each specialized agent with a unique name and model configuration
-    scrum_master = ScrumMasterAgent("scrum_master", llm_config={"model": model})
-    vision_strategy = VisionStrategyAgent("vision_strategy", llm_config={"model": model})
-    product_manager = ProductManagerAgent("product_manager", llm_config={"model": model})
-    technical_architect = TechnicalArchitectAgent("technical_architect", llm_config={"model": model})
-    developer = DeveloperAgent("developer", llm_config={"model": model})
-    data_analytics = DataAnalyticsAgent("data_analytics", llm_config={"model": model})
-    legal_ethics = LegalEthicsAgent("legal_ethics", llm_config={"model": model})
-    finance_funding = FinanceFundingAgent("finance_funding", llm_config={"model": model})
-    marketing_brand = MarketingBrandAgent("marketing_brand", llm_config={"model": model})
-    community_partnerships = CommunityPartnershipsAgent("community_partnerships", llm_config={"model": model})
-    spiritual_alignment = SpiritualAlignmentAgent("spiritual_alignment", llm_config={"model": model})
-    research_innovation = ResearchInnovationAgent("research_innovation", llm_config={"model": model})
+    # Instantiate each specialized agent with a unique name and model_client
+    ceo = CEOAgent("ceo", model_client=model_client, tools=[web_fetch])
+    scrum_master = ScrumMasterAgent("scrum_master", model_client=model_client, tools=[web_fetch])
+    vision_strategy = VisionStrategyAgent("vision_strategy", model_client=model_client, tools=[web_fetch])
+    product_manager = ProductManagerAgent("product_manager", model_client=model_client, tools=[web_fetch])
+    technical_architect = TechnicalArchitectAgent("technical_architect", model_client=model_client, tools=[web_fetch])
+    developer = DeveloperAgent("developer", model_client=model_client, tools=[web_fetch])
+    data_analytics = DataAnalyticsAgent("data_analytics", model_client=model_client, tools=[web_fetch])
+    legal_ethics = LegalEthicsAgent("legal_ethics", model_client=model_client, tools=[web_fetch])
+    finance_funding = FinanceFundingAgent("finance_funding", model_client=model_client, tools=[web_fetch])
+    marketing_brand = MarketingBrandAgent("marketing_brand", model_client=model_client, tools=[web_fetch])
+    community_partnerships = CommunityPartnershipsAgent("community_partnerships", model_client=model_client, tools=[web_fetch])
+    spiritual_alignment = SpiritualAlignmentAgent("spiritual_alignment", model_client=model_client, tools=[web_fetch])
+    research_innovation = ResearchInnovationAgent("research_innovation", model_client=model_client, tools=[web_fetch])
 
-    # create the orchestrator and provide the list of agents it should coordinate
-    orchestrator = OrchestratorAgent(
-        "orchestrator",
-        llm_config={"model": model},
-        agents=[
-            scrum_master,
-            vision_strategy,
-            product_manager,
-            technical_architect,
-            developer,
-            data_analytics,
-            legal_ethics,
-            finance_funding,
-            marketing_brand,
-            community_partnerships,
-            spiritual_alignment,
-            research_innovation,
-        ],
+    orchestrator = OrchestratorAgent("orchestrator", model_client=model_client)
+    orchestrator.register_agents(
+        ceo,
+        scrum_master,
+        vision_strategy,
+        product_manager,
+        technical_architect,
+        developer,
+        data_analytics,
+        legal_ethics,
+        finance_funding,
+        marketing_brand,
+        community_partnerships,
+        spiritual_alignment,
+        research_innovation,
     )
 
-    # example user request: plan the first sprint for the AddValue App MVP
     user_request = (
         "Plan Sprint 1 for the Value Adders World platform. "
         "Produce a backlog for the AddValue App MVP including Activation Day, micro-act logging, "
@@ -68,10 +91,27 @@ def run_demo() -> None:
         "and ensure alignment with our Living Constitution and ethical guidelines."
     )
 
-    # run the orchestrator with the user request
     result = orchestrator.run(user_request)
-    # print the result to the console
     print(result)
+
+    tasks = get_tasks_for_today()
+    review_aliases = _parse_aliases(os.getenv("REVIEW_REQUIRED_ALIASES", "developer,ceo"))
+    notifier = SlackNotifier()
+    deliverable_writer: DeliverableWriter | None = None
+    if _env_bool("WRITE_DELIVERABLES", True):
+        deliverable_writer = DeliverableWriter()
+
+    summary = orchestrator.run_sprint(
+        tasks,
+        initiator_alias=os.getenv("SPRINT_INITIATOR", "scrum_master"),
+        execute=_env_bool("AUTO_EXECUTE", True),
+        review_aliases=review_aliases,
+        deliverable_writer=deliverable_writer,
+        slack_notifier=notifier,
+    )
+    print("\nSprint summary:\n")
+    print(summary)
+
 
 if __name__ == "__main__":
     run_demo()
