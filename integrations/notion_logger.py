@@ -18,6 +18,7 @@ _DEFAULT_TITLE_PROPERTY = "Name"
 _DEFAULT_STATUS_PROPERTY = "Status"
 _DEFAULT_AGENT_PROPERTY = "Agent"
 _DEFAULT_TASK_PROPERTY = "Task"
+_DEFAULT_SUMMARY_PROPERTY = "Summary"
 
 
 @dataclass(slots=True)
@@ -30,6 +31,7 @@ class NotionConfig:
     status_property: str | None = _DEFAULT_STATUS_PROPERTY
     agent_property: str | None = _DEFAULT_AGENT_PROPERTY
     task_property: str | None = _DEFAULT_TASK_PROPERTY
+    summary_property: str | None = _DEFAULT_SUMMARY_PROPERTY
 
     @classmethod
     def from_env(cls) -> "NotionConfig":
@@ -41,6 +43,7 @@ class NotionConfig:
             status_property=os.getenv("NOTION_STATUS_PROPERTY", _DEFAULT_STATUS_PROPERTY) or None,
             agent_property=os.getenv("NOTION_AGENT_PROPERTY", _DEFAULT_AGENT_PROPERTY) or None,
             task_property=os.getenv("NOTION_TASK_PROPERTY", _DEFAULT_TASK_PROPERTY) or None,
+            summary_property=os.getenv("NOTION_SUMMARY_PROPERTY", _DEFAULT_SUMMARY_PROPERTY) or None,
         )
 
 
@@ -111,6 +114,7 @@ class NotionLogger:
             status,
             include_task=False,
             include_title=False,
+            summary=summary,
         )
 
         try:
@@ -144,6 +148,7 @@ class NotionLogger:
         *,
         include_task: bool = True,
         include_title: bool = True,
+        summary: str | None = None,
     ) -> dict:
         properties: dict[str, dict] = {}
 
@@ -182,6 +187,16 @@ class NotionLogger:
                     {
                         "type": "text",
                         "text": {"content": task_description[:2000]},
+                    }
+                ]
+            }
+
+        if summary and self.config.summary_property:
+            properties[self.config.summary_property] = {
+                "rich_text": [
+                    {
+                        "type": "text",
+                        "text": {"content": summary[:2000]},
                     }
                 ]
             }
