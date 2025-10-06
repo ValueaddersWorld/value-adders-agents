@@ -1,0 +1,53 @@
+﻿{
+    "manifest_version":  3,
+    "name":  "PathLog Bridge",
+    "description":  "Send selected AI chat text into your encrypted PathLog vault.",
+    "version":  "0.1.0",
+    "permissions":  [
+                        "contextMenus",
+                        "activeTab",
+                        "scripting",
+                        "storage",
+                        "notifications"
+                    ],
+    "host_permissions":  [
+                             "http://localhost:8002/*",
+                             "https://localhost:8002/*"
+                         ],
+    "background":  {
+                       "service_worker":  "background.js"
+                   },
+    "options_page":  "options.html",
+    "action":  {
+                   "default_title":  "PathLog Bridge",
+                   "default_icon":  {
+                                        "16":  "icons/icon16.png",
+                                        "32":  "icons/icon32.png",
+                                        "48":  "icons/icon48.png",
+                                        "128":  "icons/icon128.png"
+                                    }
+               },
+    "content_scripts":  [
+                            {
+                                "matches":  [
+                                                "https://chat.openai.com/*",
+                                                "https://claude.ai/*",
+                                                "https://www.perplexity.ai/*",
+                                                "https://*.notion.so/*",
+                                                "https://app.slack.com/*"
+                                            ],
+                                "js":  [
+                                           "content.js"
+                                       ],
+                                "run_at":  "document_idle"
+                            }
+                        ],
+    "commands":  {
+                     "send-selection":  {
+                                            "description":  "Send the current selection to PathLog",
+                                            "suggested_key":  {
+                                                                  "default":  "Alt+Shift+L"
+                                                              }
+                                        }
+                 }
+}

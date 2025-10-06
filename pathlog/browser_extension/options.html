@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PathLog Bridge Settings</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <main>
+    <h1>PathLog Bridge</h1>
+    <p>Configure your local PathLog API connection and vault credentials.</p>
+    <form id="settings-form">
+      <label>
+        API Base URL
+        <input type="url" id="baseUrl" required placeholder="http://localhost:8002" />
+      </label>
+      <label>
+        User ID
+        <input type="text" id="userId" required placeholder="Vault user UUID" />
+      </label>
+      <label>
+        Passphrase (optional)
+        <input type="password" id="passphrase" placeholder="Only if your vault requires it" />
+      </label>
+      <label>
+        Tool Name
+        <input type="text" id="toolName" placeholder="browser_extension" />
+      </label>
+      <div class="actions">
+        <button type="submit">Save</button>
+        <button type="button" id="resetButton" class="secondary">Reset</button>
+      </div>
+    </form>
+    <p class="status" id="status"></p>
+    <footer>
+      <small>Selection data is sent via HTTPS to your configured PathLog instance.</small>
+    </footer>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>

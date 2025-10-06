@@ -3,3 +3,6 @@ __pycache__/
 outputs/*/
 outputs/*.md
 outputs/*.txt
+pathlog_data/
+pathlog_quickstart_export.json
+pathlog-bridge-extension.zip

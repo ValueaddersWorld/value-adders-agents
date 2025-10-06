@@ -1,0 +1,76 @@
+﻿body {
+  font-family: "Segoe UI", Roboto, sans-serif;
+  background: #f5f6fb;
+  margin: 0;
+  padding: 0;
+  color: #1f2430;
+}
+
+main {
+  max-width: 480px;
+  margin: 40px auto;
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 18px 45px -24px rgba(31, 36, 48, 0.4);
+}
+
+h1 {
+  margin-top: 0;
+  color: #243057;
+}
+
+form label {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+input[type="text"],
+input[type="url"],
+input[type="password"] {
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #cdd4e7;
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+button {
+  appearance: none;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #2f3a67;
+  color: #ffffff;
+}
+
+button.secondary {
+  background: #eff2fa;
+  color: #2f3a67;
+}
+
+.status {
+  min-height: 20px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #2f3a67;
+}
+
+footer {
+  margin-top: 24px;
+  font-size: 12px;
+  color: #556080;
+  text-align: center;
+}
