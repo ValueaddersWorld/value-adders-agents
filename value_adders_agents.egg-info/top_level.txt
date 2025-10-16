@@ -1,0 +1,5 @@
+agents
+automation
+integrations
+outputs
+tools

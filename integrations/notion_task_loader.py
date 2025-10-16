@@ -7,7 +7,7 @@ from typing import Dict
 
 import requests
 
-from .notion_logger import NotionConfig, _NOTION_API_URL
+from .notion_logger import _NOTION_API_URL, NotionConfig
 
 LOGGER = logging.getLogger(__name__)
 
@@ -31,7 +31,9 @@ def _status_to_name(prop: dict | None) -> str:
 class NotionTaskLoader:
     """Fetch the most recent task information from the Notion database."""
 
-    def __init__(self, config: NotionConfig | None = None, session: requests.Session | None = None) -> None:
+    def __init__(
+        self, config: NotionConfig | None = None, session: requests.Session | None = None
+    ) -> None:
         self.config = config or NotionConfig.from_env()
         self._session = session or requests.Session()
         if self.is_configured:
@@ -76,14 +78,30 @@ class NotionTaskLoader:
         latest: Dict[str, dict] = {}
         for page in results:
             properties = page.get("properties", {})
-            alias = _rich_text_to_plain(properties.get(self.config.agent_property)) if self.config.agent_property else ""
+            alias = (
+                _rich_text_to_plain(properties.get(self.config.agent_property))
+                if self.config.agent_property
+                else ""
+            )
             if not alias:
                 alias = page.get("id", "")
             if alias in latest:
                 continue
-            task_text = _rich_text_to_plain(properties.get(self.config.task_property)) if self.config.task_property else ""
-            summary_text = _rich_text_to_plain(properties.get(self.config.summary_property)) if self.config.summary_property else ""
-            status_name = _status_to_name(properties.get(self.config.status_property)) if self.config.status_property else ""
+            task_text = (
+                _rich_text_to_plain(properties.get(self.config.task_property))
+                if self.config.task_property
+                else ""
+            )
+            summary_text = (
+                _rich_text_to_plain(properties.get(self.config.summary_property))
+                if self.config.summary_property
+                else ""
+            )
+            status_name = (
+                _status_to_name(properties.get(self.config.status_property))
+                if self.config.status_property
+                else ""
+            )
             latest[alias] = {
                 "task": task_text,
                 "summary": summary_text,

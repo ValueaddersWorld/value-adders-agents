@@ -1,0 +1,3 @@
+[bandit]
+exclude_dirs = ["/tests", "/outputs", "/pathlog_data", "/.venv", "/.env"]
+skips = ["B101"]  # Skip assert_used (used in tests)

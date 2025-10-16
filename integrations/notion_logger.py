@@ -43,16 +43,20 @@ class NotionConfig:
             status_property=os.getenv("NOTION_STATUS_PROPERTY", _DEFAULT_STATUS_PROPERTY) or None,
             agent_property=os.getenv("NOTION_AGENT_PROPERTY", _DEFAULT_AGENT_PROPERTY) or None,
             task_property=os.getenv("NOTION_TASK_PROPERTY", _DEFAULT_TASK_PROPERTY) or None,
-            summary_property=os.getenv("NOTION_SUMMARY_PROPERTY", _DEFAULT_SUMMARY_PROPERTY) or None,
+            summary_property=os.getenv("NOTION_SUMMARY_PROPERTY", _DEFAULT_SUMMARY_PROPERTY)
+            or None,
         )
 
 
 class NotionLogger:
     """Lightweight helper for recording orchestration activity in Notion."""
 
-    def __init__(self, config: NotionConfig | None = None, session: Optional[requests.Session] = None) -> None:
+    def __init__(
+        self, config: NotionConfig | None = None, session: Optional[requests.Session] = None
+    ) -> None:
         self.config = config or NotionConfig.from_env()
         self._session = session or requests.Session()
+        self._disabled: bool = False
         if self.is_configured:
             self._session.headers.update(
                 {
@@ -65,11 +69,13 @@ class NotionLogger:
     @property
     def is_configured(self) -> bool:
         """Return True when all required settings are available."""
-        return bool(self.config.api_key and self.config.database_id)
+        return bool(self.config.api_key and self.config.database_id) and not self._disabled
 
-    def create_task_entry(self, agent_alias: str, task_description: str, status: str = "Assigned") -> str | None:
+    def create_task_entry(
+        self, agent_alias: str, task_description: str, status: str = "Assigned"
+    ) -> str | None:
         """Create a Notion page representing an assigned task."""
-        if not self.is_configured:
+        if not self.is_configured or self._disabled:
             return None
 
         properties = self._build_properties(agent_alias, task_description, status)
@@ -94,6 +100,12 @@ class NotionLogger:
             return page_id
         except Exception as exc:  # noqa: BLE001
             LOGGER.warning("Unable to create Notion entry for %s: %s", agent_alias, exc)
+            if (
+                isinstance(exc, requests.HTTPError)
+                and exc.response is not None
+                and exc.response.status_code == 400
+            ):
+                self._disabled = True
             return None
 
     def update_task_entry(
@@ -105,7 +117,7 @@ class NotionLogger:
         extra_blocks: Optional[Iterable[dict]] = None,
     ) -> None:
         """Update a task entry with a new status and optional summary."""
-        if not self.is_configured or not page_id:
+        if not self.is_configured or not page_id or self._disabled:
             return
 
         properties = self._build_properties(
@@ -139,6 +151,12 @@ class NotionLogger:
                 response.raise_for_status()
         except Exception as exc:  # noqa: BLE001
             LOGGER.warning("Unable to update Notion entry %s: %s", page_id, exc)
+            if (
+                isinstance(exc, requests.HTTPError)
+                and exc.response is not None
+                and exc.response.status_code == 400
+            ):
+                self._disabled = True
 
     def _build_properties(
         self,

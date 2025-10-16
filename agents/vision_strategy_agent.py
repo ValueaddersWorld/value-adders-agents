@@ -1,5 +1,6 @@
 from autogen_agentchat.agents import AssistantAgent
 
+
 class VisionStrategyAgent(AssistantAgent):
     """Vision Strategy agent orchestrates the organization's strategic direction."""
 
@@ -14,11 +15,9 @@ class VisionStrategyAgent(AssistantAgent):
         )
         system_message = kwargs.pop("system_message", default_system_message)
         super().__init__(
-            name=name,
-            system_message=system_message,
-            model_client=model_client,
-            **kwargs
+            name=name, system_message=system_message, model_client=model_client, **kwargs
         )
+
 
 if __name__ == "__main__":
     agent = VisionStrategyAgent()

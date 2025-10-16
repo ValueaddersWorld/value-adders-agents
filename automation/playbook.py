@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import os
 from datetime import datetime
-from typing import Dict
 from pathlib import Path
+from typing import Dict
 
 # Default fallback tasks identical to prior sprint configuration
 _DEFAULT_TASKS: Dict[str, str] = {
@@ -67,11 +67,12 @@ def get_tasks_for_today(today: datetime | None = None) -> Dict[str, str]:
         if path.exists():
             override_tasks = {
                 key.strip(): value.strip()
-                for key, value in (line.split("=", 1) for line in path.read_text().splitlines() if "=" in line)
+                for key, value in (
+                    line.split("=", 1) for line in path.read_text().splitlines() if "=" in line
+                )
             }
             base_tasks.update(override_tasks)
     return base_tasks
 
 
 __all__ = ["get_tasks_for_today"]
-

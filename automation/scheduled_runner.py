@@ -37,7 +37,9 @@ def run_sprint_once(notifier: SlackNotifier | None = None) -> None:
             notifier.send("Sprint orchestration completed successfully.")
 
 
-def run_loop(interval_minutes: float, max_runs: int | None = None, notifier: SlackNotifier | None = None) -> None:
+def run_loop(
+    interval_minutes: float, max_runs: int | None = None, notifier: SlackNotifier | None = None
+) -> None:
     run_count = 0
     while True:
         run_count += 1

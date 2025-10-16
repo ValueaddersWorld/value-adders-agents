@@ -14,6 +14,9 @@ Responsibilities include:
 
 from autogen_agentchat.agents import AssistantAgent
 
+from .structured_outputs import PRODUCT_BRIEF_FORMAT, ProductBacklogBrief
+
+
 class ProductManagerAgent(AssistantAgent):
     """Product Manager agent orchestrates product development and ensures user-centric design."""
 
@@ -29,16 +32,20 @@ class ProductManagerAgent(AssistantAgent):
             "You translate the General's vision and strategy into actionable user stories and acceptance criteria, "
             "define sprint plans and manage the backlog, prioritize features based on impact and feasibility, "
             "and coordinate with Developer, Data, Design and other agents to deliver features on schedule. "
-            "Ensure our products meet user needs, align with spiritual-tech values and deliver on the Massive Transformative Purpose."
+            "Ensure our products meet user needs, align with spiritual-tech values and deliver on the Massive Transformative Purpose. "
+            "Respond using the fields objective, user_stories, acceptance_criteria, stakeholder_alignment, and follow_up_actions; keep each field concise and actionable."
         )
         if system_message is None:
             system_message = default_system_message
+        kwargs.setdefault("output_content_type", ProductBacklogBrief)
+        kwargs.setdefault("output_content_type_format", PRODUCT_BRIEF_FORMAT)
         super().__init__(
             name=name,
             system_message=system_message,
             model_client=model_client,
             **kwargs,
         )
+
 
 if __name__ == "__main__":
     agent = ProductManagerAgent()

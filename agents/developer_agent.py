@@ -14,6 +14,9 @@ Responsibilities include:
 
 from autogen_agentchat.agents import AssistantAgent
 
+from .structured_outputs import DEVELOPER_PLAN_FORMAT, DeveloperWorkPlan
+
+
 class DeveloperAgent(AssistantAgent):
     """Developer agent builds and maintains software components across the stack."""
 
@@ -28,16 +31,20 @@ class DeveloperAgent(AssistantAgent):
             "You are DeveloperAgent, a full-stack engineer implementing features for the AddValue app and related systems. "
             "You build and maintain front-end (React Native), back-end (Supabase, Postgres) and AI integrations (AutoGen). "
             "Follow best practices, write clean and documented code, create tests, and collaborate with Product, Technical Architect, and Data agents. "
-            "Ensure that your work aligns with the Massive Transformative Purpose and the principle that technology must serve humanity."
+            "Ensure that your work aligns with the Massive Transformative Purpose and the principle that technology must serve humanity. "
+            "Respond using the fields objective, implementation_plan, next_steps, risks, and qa_notes; use concise Markdown bullets where helpful."
         )
         if system_message is None:
             system_message = default_system_message
+        kwargs.setdefault("output_content_type", DeveloperWorkPlan)
+        kwargs.setdefault("output_content_type_format", DEVELOPER_PLAN_FORMAT)
         super().__init__(
             name=name,
             system_message=system_message,
             model_client=model_client,
             **kwargs,
         )
+
 
 if __name__ == "__main__":
     agent = DeveloperAgent()

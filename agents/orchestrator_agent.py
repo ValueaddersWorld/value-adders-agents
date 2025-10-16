@@ -55,6 +55,8 @@ class OrchestratorAgent(AssistantAgent):
         self.agents: list[AssistantAgent] = []
         self.last_task_results: dict[str, TaskResult] = {}
         self.last_task_errors: dict[str, BaseException] = {}
+        self.last_plan_result: TaskResult | None = None
+        self.last_plan_text: str | None = None
         self._notion_pages: dict[str, str] = {}
         self.notion_logger = notion_logger or NotionLogger()
         self.slack_notifier = slack_notifier or SlackNotifier()
@@ -215,9 +217,30 @@ class OrchestratorAgent(AssistantAgent):
 
         return "\n\n".join(section for section in sections if section)
 
+    async def plan(self, user_request: str) -> str:
+        """Generate an orchestration plan by engaging the underlying language model."""
+        if not isinstance(user_request, str) or not user_request.strip():
+            raise ValueError("user_request must be a non-empty string.")
+
+        prompt = f"""{user_request}\nRespond with a concise sprint kickoff plan (<=200 words) using bullet points."""
+        result = await AssistantAgent.run(self, task=prompt, output_task_messages=False)
+        plan_text = (
+            self._extract_response_text(result) or "No response received from orchestrator plan."
+        ).strip()
+        if not plan_text:
+            plan_text = "No response received from orchestrator plan."
+        self.last_plan_result = result
+        self.last_plan_text = plan_text
+        return plan_text
+
     def run(self, user_request: str) -> str:
-        system_message = getattr(self, "_system_messages", [None])[0] or "No system message found."
-        return f"Received request: {user_request}\nSystem message: {system_message}"
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(self.plan(user_request))
+        raise RuntimeError(
+            "OrchestratorAgent.run cannot be called while an event loop is running; use `await orchestrator.plan(...)` instead."
+        )
 
     def _execute_agent_task(self, agent: AssistantAgent, task: str) -> TaskResult:
         async def _runner() -> TaskResult:
@@ -261,7 +284,9 @@ class OrchestratorAgent(AssistantAgent):
                 return ""
         return str(message) if message is not None else ""
 
-    def _log_notion_assignment(self, alias: str, task: str, *, status: str = "Assigned") -> str | None:
+    def _log_notion_assignment(
+        self, alias: str, task: str, *, status: str = "Assigned"
+    ) -> str | None:
         if not self.notion_logger or not self.notion_logger.is_configured:
             return None
 
@@ -270,13 +295,17 @@ class OrchestratorAgent(AssistantAgent):
             self._notion_pages[alias] = page_id
         return page_id
 
-    def _log_notion_update(self, alias: str, page_id: str | None, *, status: str, summary: str | None) -> None:
+    def _log_notion_update(
+        self, alias: str, page_id: str | None, *, status: str, summary: str | None
+    ) -> None:
         if not self.notion_logger or not self.notion_logger.is_configured:
             return
 
         target_page_id = page_id or self._notion_pages.get(alias)
         if not target_page_id:
-            target_page_id = self.notion_logger.create_task_entry(alias, "(auto-created entry)", status=status)
+            target_page_id = self.notion_logger.create_task_entry(
+                alias, "(auto-created entry)", status=status
+            )
             if target_page_id:
                 self._notion_pages[alias] = target_page_id
 

@@ -14,6 +14,7 @@ Responsibilities include:
 
 from autogen_agentchat.agents import AssistantAgent
 
+
 class TechnicalArchitectAgent(AssistantAgent):
     """Technical Architect agent designs compute infrastructure and backend architecture."""
 
@@ -38,6 +39,7 @@ class TechnicalArchitectAgent(AssistantAgent):
             model_client=model_client,
             **kwargs,
         )
+
 
 if __name__ == "__main__":
     agent = TechnicalArchitectAgent()

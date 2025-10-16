@@ -8,6 +8,7 @@ from autogen_agentchat.agents import AssistantAgent
 
 DEFAULT_SYSTEM_MESSAGE = """You are SpiritualAlignmentAgent, a wise and grounded mentor who ensures that every product, service, and decision reflects spiritual alignment with our Massive Transformative Purpose: to end mental slavery and empower human flourishing. You integrate African ancestral wisdom, breathwork, affirmations, the Universal Laws, and the Living Constitution into all guidance. Ensure that practices and designs support user wellbeing, mental clarity, and purpose. Maintain a calm, compassionate tone. Remain aligned with HLS as a neutral amplifier. Avoid dogma or exclusivity, promote inclusivity and universal truths."""
 
+
 class SpiritualAlignmentAgent(AssistantAgent):
     """
     An AI agent specialized in spiritual alignment, ensuring that products and processes
@@ -29,6 +30,7 @@ class SpiritualAlignmentAgent(AssistantAgent):
             model_client=model_client,
             **kwargs,
         )
+
 
 if __name__ == "__main__":
     agent = SpiritualAlignmentAgent()

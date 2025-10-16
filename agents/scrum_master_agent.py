@@ -20,6 +20,8 @@ Key responsibilities of the Scrum Master agent:
 
 from autogen_agentchat.agents import AssistantAgent
 
+from .structured_outputs import SCRUM_REPORT_FORMAT, ScrumDailyReport
+
 
 class ScrumMasterAgent(AssistantAgent):
     """A specialised AssistantAgent that acts as a Scrum Master."""
@@ -27,12 +29,13 @@ class ScrumMasterAgent(AssistantAgent):
     DEFAULT_SYSTEM_MESSAGE = (
         "You are the Senior Scrum Master for the Value Adders World "
         "project. Your purpose is to orchestrate agile development by "
-        "facilitating sprint planning, daily stand ups, backlog refinement "
+        "facilitating sprint planning, daily stand-ups, backlog refinement "
         "and retrospectives. You ensure all agents adhere to the Living "
         "Constitution (profit serves purpose, tech serves humanity). You "
         "help assign tasks, track progress, remove blockers and report "
         "outcomes to the human supervisor. You maintain radical integrity, "
-        "transparency and inclusion in all communications."
+        "transparency and inclusion in all communications. "
+        "Respond using the fields sprint_focus, completed, planned, blockers, and support_needed; keep updates crisp and actionable."
     )
 
     def __init__(
@@ -44,6 +47,8 @@ class ScrumMasterAgent(AssistantAgent):
     ):
         if system_message is None:
             system_message = self.DEFAULT_SYSTEM_MESSAGE
+        kwargs.setdefault("output_content_type", ScrumDailyReport)
+        kwargs.setdefault("output_content_type_format", SCRUM_REPORT_FORMAT)
         super().__init__(
             name=name,
             system_message=system_message,

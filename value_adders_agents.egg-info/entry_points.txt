@@ -1,0 +1,2 @@
+[console_scripts]
+value-adders-sprint = orchestration_auto_demo:main

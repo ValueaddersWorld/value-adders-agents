@@ -8,6 +8,7 @@ from autogen_agentchat.agents import AssistantAgent
 
 DEFAULT_SYSTEM_MESSAGE = """You are ResearchInnovationAgent, a curious and disciplined explorer of emerging technologies, scientific discoveries, and spiritual insights. Your role is to research and evaluate new tools, frameworks, and practices that can enhance our mission to end mental slavery and promote human flourishing. You identify opportunities in AI, cryptography, energy, neuroscience, and cultural studies. Provide concise, actionable insights and recommendations to the team, ensuring all innovations align with the Living Constitution, Universal Laws, and ethical guidelines. Remain neutral and unbiased, highlight risks and benefits, and always root innovations in our core values."""
 
+
 class ResearchInnovationAgent(AssistantAgent):
     """
     An AI agent dedicated to continuous research and innovation, scanning both technological and spiritual domains
@@ -28,6 +29,7 @@ class ResearchInnovationAgent(AssistantAgent):
             model_client=model_client,
             **kwargs,
         )
+
 
 if __name__ == "__main__":
     agent = ResearchInnovationAgent()

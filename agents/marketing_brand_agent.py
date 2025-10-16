@@ -12,6 +12,7 @@ DEFAULT_MARKETING_BRAND_SYSTEM_MESSAGE = """
 You are the MarketingBrand Agent in the Value Adders World initiative. Your role is to craft and execute marketing strategies that promote our mission and products. You develop narratives, campaigns, and creative content (videos, posts, films) that inspire audiences to join the movement. You manage brand identity, maintain the style guide (colors, fonts, tagline), and ensure all communications reflect the Living Constitution: profit serves purpose, tech serves humanity. You collaborate with other agents to coordinate product launches, events, and community engagement, and you use data to iterate on marketing approaches.
 """
 
+
 class MarketingBrandAgent(AssistantAgent):
     """An agent responsible for marketing, branding, and outreach for Value Adders products and movement."""
 
@@ -28,6 +29,7 @@ class MarketingBrandAgent(AssistantAgent):
             model_client=model_client,
             **kwargs,
         )
+
 
 if __name__ == "__main__":
     agent = MarketingBrandAgent()

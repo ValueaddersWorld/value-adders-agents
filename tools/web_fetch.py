@@ -8,6 +8,7 @@ from html.parser import HTMLParser
 from typing import Iterable
 
 import requests
+from autogen_core.tools import FunctionTool
 
 
 class _TextExtractor(HTMLParser):
@@ -16,7 +17,9 @@ class _TextExtractor(HTMLParser):
         self._chunks: list[str] = []
         self._ignore_stack: list[str] = []
 
-    def handle_starttag(self, tag: str, attrs: Iterable[tuple[str, str | None]]) -> None:  # noqa: ARG002
+    def handle_starttag(
+        self, tag: str, attrs: Iterable[tuple[str, str | None]]
+    ) -> None:  # noqa: ARG002
         if tag in {"script", "style", "noscript"}:
             self._ignore_stack.append(tag)
 
@@ -76,4 +79,15 @@ def web_fetch(url: str, query: str | None = None, max_chars: int = 2000) -> str:
     return text or "No readable text content detected."
 
 
-__all__ = ["web_fetch"]
+def _strict_web_fetch(url: str) -> str:
+    """Strict-compatible wrapper around web_fetch using default extraction settings."""
+    return web_fetch(url=url)
+
+
+WEB_FETCH_TOOL = FunctionTool(
+    _strict_web_fetch,
+    description=(web_fetch.__doc__ or "Fetch a web page and return cleaned text."),
+    strict=True,
+)
+
+__all__ = ["web_fetch", "WEB_FETCH_TOOL"]
